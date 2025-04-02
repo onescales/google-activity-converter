@@ -29,7 +29,7 @@ https://myactivity-to-csv.pages.dev/9-stable
 
 ## Additional Notes
 - All code and instructions are as is. By reading this repository, readme or any code, you acknowledge that you are solely responsible for your own doings.
-- Link to website article with instructions: COMING SOON
+- Link to website article with instructions: https://onescales.com/blogs/main/google-takeout-myactivity-converter-to-excel-csv
 
 Hope you liked this!
 
