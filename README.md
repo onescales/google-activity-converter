@@ -18,7 +18,12 @@ https://myactivity-to-csv.pages.dev/9-stable
 
 ## Usage
 
-Copy the code (https://github.com/onescales/google-activity-converter/blob/main/9-stable.html) to your computer or server and run it. It's just html with css and js inside to do the conversion and processing. Enjoy!
+1. Copy the code (https://github.com/onescales/google-activity-converter/blob/main/9-stable.html) to your computer or server and run it. It's just html with css and js inside to do the conversion and processing.
+2. Go to https://takeout.google.com and export your myactivity.
+3. Wait for export to complete and download to your computer.
+4. Unzip export.
+5. Open the unzipped folder, go inside "My Activity" and the folder of choice and upload myactivity.html to your html converter you just took from step 1.
+6. Enjoy!
 
 
 
