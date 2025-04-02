@@ -18,7 +18,7 @@ https://myactivity-to-csv.pages.dev/9-stable
 
 ## Usage
 
-Copy the code to your computer or server and run it. It's just html with css and js inside to do the conversion and processing. Enjoy!
+Copy the code (https://github.com/onescales/google-activity-converter/blob/main/9-stable.html) to your computer or server and run it. It's just html with css and js inside to do the conversion and processing. Enjoy!
 
 
 
