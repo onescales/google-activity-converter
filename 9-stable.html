@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Google Takeout MyActivity Converter to Excel (CSV)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f2f2f2;
+    }
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 900px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 1.8em;
+      margin-bottom: 10px;
+    }
+    input[type="file"] {
+      margin-bottom: 10px;
+    }
+    button, a.download-btn {
+      padding: 10px 15px;
+      border: none;
+      background: #007BFF;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      margin-right: 10px;
+    }
+    button:hover, a.download-btn:hover {
+      background: #0056b3;
+    }
+    #preview {
+      margin-top: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background: #fafafa;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table th, table td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Google Takeout MyActivity Converter to Excel (CSV)</h1>
+    <p>This Tool Converter Google Takeout Exports myactivity.html files to CSV so you can open in Excel, Google sheets and any CSV software.</p>
+    <p>It works and waas tested on google search, image search, video search and youtube search activity exports.</p>
+    <p><b>Most importantly:</b> <u>It's all private and personal</u> as the upload and conversion happens in the browser and NEVER gets sent to any server nor 3rd party. (technically it's in javascript and converter in your page. Once you load the page you can even close your wifi or your internet connection and it will work) </p>
+    <input type="file" id="fileInput" accept=".html">
+    <button id="convertBtn">Convert to CSV</button>
+    <a id="downloadLink" class="download-btn" style="display:none;" download="myactivity.csv">Download CSV</a>
+    <div id="preview"></div>
+  </div>
+
+  <script>
+    document.getElementById('convertBtn').addEventListener('click', function() {
+      const fileInput = document.getElementById('fileInput');
+      if (fileInput.files.length === 0) {
+        alert('Please select a file.');
+        return;
+      }
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const htmlContent = e.target.result;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlContent, 'text/html');
+
+        // Select each activity entry based on its outer container.
+        const activityEntries = doc.querySelectorAll('div.outer-cell.mdl-cell.mdl-cell--12-col.mdl-shadow--2dp');
+        console.log('Found activity entries:', activityEntries.length);
+
+        const data = [];
+        activityEntries.forEach(entry => {
+          // Extract activity type from the header cell (e.g., "YouTube", "Search")
+          const headerElem = entry.querySelector('div.header-cell p.mdl-typography--title');
+          const activityType = headerElem ? headerElem.textContent.trim() : '';
+
+          // Extract content from the content cell (with mdl-cell--6-col)
+          const contentElem = entry.querySelector('div.content-cell.mdl-cell.mdl-cell--6-col');
+          
+          let description = '';
+          let datetime = '';
+          let url = '';
+
+          if (contentElem) {
+            // For YouTube entries
+            if (activityType.includes('YouTube')) {
+              // Get all links, first one is the video, second one might be the channel
+              const links = contentElem.querySelectorAll('a');
+              
+              if (links.length > 0) {
+                // First link is the video title & URL
+                description = links[0].textContent.trim();
+                url = links[0].href; // Always use video URL for YouTube entries
+                
+                // Add channel name to description if available
+                if (links.length > 1) {
+                  description += '\n' + links[1].textContent.trim();
+                }
+              }
+              
+              // Get datetime by extracting all text and finding date pattern
+              const contentText = contentElem.textContent;
+              // Look for patterns like Mar 31, 2025, 1:15:19 PM CST
+              const datetimeMatch = contentText.match(/[A-Za-z]{3}\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}:\d{2}\s+[AP]M\s+[A-Z]{3}/);
+              if (datetimeMatch) {
+                datetime = datetimeMatch[0];
+              }
+            } else {
+              // For other entry types
+              const linkElem = contentElem.querySelector('a');
+              if (linkElem) {
+                description = linkElem.textContent.trim();
+                url = linkElem.href;
+              } else {
+                description = contentElem.textContent.trim();
+              }
+              
+              // For datetime: Find the complete datetime string
+              const allText = contentElem.textContent;
+              const dateMatch = allText.match(/[A-Za-z]{3}\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}:\d{2}\s+[AP]M\s+[A-Z]{3}/);
+              if (dateMatch) {
+                datetime = dateMatch[0];
+              }
+            }
+          }
+
+          // Debug logging for datetime extraction
+          console.log('Activity:', activityType);
+          console.log('Raw content:', contentElem ? contentElem.textContent : 'No content');
+          console.log('Extracted datetime:', datetime);
+
+          data.push({
+            activity: activityType,
+            description: description,
+            datetime: datetime,
+            url: url
+          });
+        });
+
+        console.log('Parsed data:', data);
+
+        // Convert data to CSV format.
+        const csv = convertArrayOfObjectsToCSV(data);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const urlBlob = URL.createObjectURL(blob);
+        const downloadLink = document.getElementById('downloadLink');
+        downloadLink.href = urlBlob;
+        downloadLink.style.display = 'inline-block';
+
+        generatePreview(data);
+      };
+
+      reader.readAsText(file);
+    });
+
+    // Converts an array of objects into a CSV string.
+    function convertArrayOfObjectsToCSV(data) {
+      if (data.length === 0) return '';
+      const keys = Object.keys(data[0]);
+      let csvContent = keys.join(",") + "\n";
+      data.forEach(row => {
+        const rowContent = keys.map(key => {
+          let cell = row[key] ? row[key].toString() : "";
+          cell = cell.replace(/"/g, '""');
+          if (cell.search(/("|,|\n)/g) >= 0) {
+            cell = '"' + cell + '"';
+          }
+          return cell;
+        }).join(",");
+        csvContent += rowContent + "\n";
+      });
+      return csvContent;
+    }
+
+    // Generates a preview table for the parsed data.
+    function generatePreview(data) {
+      const previewDiv = document.getElementById('preview');
+      previewDiv.innerHTML = '';
+      if (data.length === 0) {
+        previewDiv.textContent = "No activity data found.";
+        return;
+      }
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      Object.keys(data[0]).forEach(key => {
+        const th = document.createElement('th');
+        th.textContent = key;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        Object.values(row).forEach(cellData => {
+          const td = document.createElement('td');
+          td.textContent = cellData;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      previewDiv.appendChild(table);
+    }
+  </script>
+</body>
+</html>
