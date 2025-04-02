@@ -16,6 +16,10 @@ URL COMING SOON
 
 https://myactivity-to-csv.pages.dev/9-stable
 
+## Usage
+
+Copy the code to your computer or server and run it. It's just html with css and js inside to do the conversion and processing. Enjoy!
+
 
 
 ## Additional Notes
