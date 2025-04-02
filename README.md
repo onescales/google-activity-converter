@@ -8,7 +8,7 @@ Most importantly: It's all private and personal as the upload and conversion hap
 
 
 ## Youtube Explainer: 
-[![Watch the video](https://img.youtube.com/vi/f-vxTAIxeRA/0.jpg)](https://www.youtube.com/watch?v=f-vxTAIxeRA)
+EMBED COMING SOON
 
 URL COMING SOON
 
