@@ -14,7 +14,7 @@ URL COMING SOON
 
 ## Demo
 
-https://myactivity-to-csv.pages.dev/9-stable
+https://onescales.com/blogs/main/google-takeout-myactivity-converter-to-excel-csv
 
 ## Usage
 
